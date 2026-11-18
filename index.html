@@ -3,43 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
 <title>Cantera Bedrock</title>
 <meta name="description" content="Addons, resource packs, shaders, mundos y holoprints para Minecraft Bedrock.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Hanken+Grotesk:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Unbounded:wght@500;700&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="sky">
-  <header class="in top">
+<div class="orbs" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<div class="page">
+  <header class="top glass">
     <a class="brand" href="./" aria-label="Cantera Bedrock, inicio"><span class="mark" aria-hidden="true"></span><span>Cantera Bedrock</span></a>
     <input id="q" class="search" type="search" placeholder="Buscar por nombre, autor o etiqueta" aria-label="Buscar">
     <button id="btnNew" class="btn primary" type="button" hidden>Publicar</button>
     <button id="btnAuth" class="btn" type="button">Admin</button>
   </header>
-  <section class="in hero">
-    <div class="hero-copy">
-      <h1>Contenido para Bedrock, capa por capa.</h1>
-      <p>Addons, resource packs, shaders, mundos y holoprints. Baja el archivo y ábrelo con Minecraft, sin crear cuenta.</p>
-      <p class="totals"><b id="stPosts">0</b> publicaciones y <b id="stDl">0</b> descargas hasta ahora.</p>
-    </div>
-    <svg class="pit" viewBox="0 0 340 250" role="img" aria-label="Corte de la cantera con cinco capas: superficie, piedra, pizarra abisal, cuevas profundas y roca madre">
-      <g font-family="Hanken Grotesk,system-ui,sans-serif" font-size="13">
-        <rect class="l1" style="--i:0" x="0"   y="0"   width="340" height="50" fill="#a9cf94"/><rect class="l1" style="--i:0" x="0" y="0" width="340" height="7" fill="#3f8a48"/><text x="12"  y="34" fill="#10281a" font-weight="700">Superficie</text><text x="328" y="34" fill="#10281a" text-anchor="end">Y 64</text>
-        <rect class="l2" style="--i:1" x="28"  y="50"  width="284" height="50" fill="#cdd1d1"/><text x="40"  y="80" fill="#1b2124" font-weight="700">Piedra</text><text x="300" y="80" fill="#1b2124" text-anchor="end">Y 16</text>
-        <rect class="l3" style="--i:2" x="56"  y="100" width="228" height="50" fill="#2a3037"/><text x="68"  y="130" fill="#e8edf0" font-weight="700">Pizarra abisal</text><text x="272" y="130" fill="#e8edf0" text-anchor="end">Y -8</text>
-        <rect class="l4" style="--i:3" x="84"  y="150" width="172" height="50" fill="#1c1f2a"/><text x="96"  y="180" fill="#ecebf5" font-weight="700">Cuevas</text><text x="244" y="180" fill="#ecebf5" text-anchor="end">Y -40</text>
-        <rect class="l5" style="--i:4" x="112" y="200" width="116" height="50" fill="#0b0c0e"/><text x="124" y="230" fill="#4ff0da" font-weight="700">Roca madre</text>
-      </g>
-    </svg>
+
+  <section class="hero glass">
+    <h1>Todo para tu mundo Bedrock</h1>
+    <p>Addons, resource packs, shaders, mundos y holoprints. Baja el archivo y ábrelo con Minecraft, sin crear cuenta.</p>
+    <p class="totals"><b id="stPosts">0</b> publicaciones y <b id="stDl">0</b> descargas hasta ahora.</p>
   </section>
-</div>
 
-<nav id="tabs" class="core" role="tablist" aria-label="Capas de contenido"></nav>
+  <nav id="tabs" class="tabs" role="tablist" aria-label="Categorías"></nav>
 
-<div class="bar">
-  <div class="in bar-in">
+  <div class="filters">
     <label>Versión de Minecraft <select id="fVer"><option value="">Todas</option></select></label>
     <label>Orden <select id="fSort">
       <option value="new">Más recientes</option><option value="old">Más antiguos</option>
@@ -47,13 +38,11 @@
     <span id="count" class="count"></span>
   </div>
   <div id="status"></div>
+
+  <main id="grid" class="grid" aria-live="polite"></main>
+
+  <footer>Cantera Bedrock reúne contenido de la comunidad para Minecraft Bedrock Edition. No está afiliado a Mojang ni a Microsoft.</footer>
 </div>
-
-<main id="grid" class="bands" aria-live="polite"></main>
-
-<footer>
-  <div class="in">Cantera Bedrock reúne contenido de la comunidad para Minecraft Bedrock Edition. No está afiliado a Mojang ni a Microsoft.</div>
-</footer>
 
 <div id="layer"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>

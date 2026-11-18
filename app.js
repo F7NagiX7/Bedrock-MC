@@ -2,13 +2,13 @@
 var C = window.CANTERA;
 var sb = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_KEY);
 var TYPES = {
-  world:  {label: "Mundos",         one: "Mundo",         cv: "--c-world",  ext: "mcworld", y: "64",  layer: "Superficie",       blurb: "Mapas para jugar, construir o explorar."},
-  pack:   {label: "Resource packs", one: "Resource pack", cv: "--c-pack",   ext: "mcpack",  y: "16",  layer: "Piedra",           blurb: "Texturas, sonidos y menús nuevos para el juego."},
-  shader: {label: "Shaders",        one: "Shader",        cv: "--c-shader", ext: "mcpack",  y: "-8",  layer: "Pizarra abisal",   blurb: "Luz, sombras y agua más realistas."},
-  addon:  {label: "Addons",         one: "Addon",         cv: "--c-addon",  ext: "mcaddon", y: "-40", layer: "Cuevas profundas", blurb: "Mobs, objetos y reglas nuevas para tu mundo."},
-  holo:   {label: "Holoprints",     one: "Holoprint",     cv: "--c-holo",   ext: "mcpack",  y: "-64", layer: "Roca madre",       blurb: "Planos holográficos para construir paso a paso."}
+  addon:  {label: "Addons",         one: "Addon",         cv: "--c-addon",  ext: "mcaddon"},
+  pack:   {label: "Resource packs", one: "Resource pack", cv: "--c-pack",   ext: "mcpack"},
+  shader: {label: "Shaders",        one: "Shader",        cv: "--c-shader", ext: "mcpack"},
+  world:  {label: "Mundos",         one: "Mundo",         cv: "--c-world",  ext: "mcworld"},
+  holo:   {label: "Holoprints",     one: "Holoprint",     cv: "--c-holo",   ext: "mcpack"}
 };
-var ORDER = ["world", "pack", "shader", "addon", "holo"];
+var ORDER = ["addon", "pack", "shader", "world", "holo"];
 var MAX_FILE = 50 * 1024 * 1024;
 var S = {posts: [], tab: "all", q: "", ver: "", sort: "new", admin: false, user: null, openId: null, loaded: false, adminExists: true};
 
@@ -64,12 +64,13 @@ function filtered() {
 }
 function renderTabs() {
   var nav = $("tabs"); nav.textContent = "";
-  var all = [["all", "Todo", "Y 64 a -64"]].concat(ORDER.map(function (k) { return [k, TYPES[k].label, "Y " + TYPES[k].y]; }));
+  var all = [["all", "Todo", null]].concat(ORDER.map(function (k) { return [k, TYPES[k].label, TYPES[k].cv]; }));
   all.forEach(function (t) {
     var n = t[0] === "all" ? S.posts.length : S.posts.filter(function (p) { return p.type === t[0]; }).length;
-    nav.appendChild(h("button", {class: "tab", type: "button", role: "tab", "data-type": t[0], "aria-selected": String(S.tab === t[0]),
-      onclick: function () { S.tab = t[0]; render(); }},
-      h("span", {class: "tab-name", text: t[1]}), h("span", {class: "tab-n", text: String(n)}), h("span", {class: "tab-y", text: t[2]})));
+    var b = h("button", {class: "tab", type: "button", role: "tab", "aria-selected": String(S.tab === t[0]), onclick: function () { S.tab = t[0]; render(); }});
+    var dot = h("i"); if (t[2]) dot.style.setProperty("--dot", "var(" + t[2] + ")"); else dot.style.setProperty("--dot", "currentColor");
+    b.appendChild(dot); b.appendChild(document.createTextNode(t[1])); b.appendChild(h("span", {text: String(n)}));
+    nav.appendChild(b);
   });
 }
 function renderVersions() {
@@ -85,27 +86,19 @@ function initials(t) {
   var w = String(t).trim().split(/\s+/);
   return ((w[0] || "?").charAt(0) + (w.length > 1 ? w[1].charAt(0) : (w[0] || "").charAt(1))).toUpperCase();
 }
-function item(p) {
-  var thumb = h("span", {class: "thumb" + (p.cover_path ? "" : " ph"), "aria-hidden": "true"});
-  if (p.cover_path) thumb.style.backgroundImage = "url('" + pubUrl(p.cover_path) + "')"; else thumb.textContent = initials(p.title);
-  var meta = h("span", {class: "meta"},
+function card(p) {
+  var t = TYPES[p.type] || TYPES.addon;
+  var cover = h("div", {class: "cover" + (p.cover_path ? "" : " ph")}, h("span", {class: "chip", text: t.one}));
+  cover.style.setProperty("--tc", typeColor(p.type));
+  if (p.cover_path) cover.style.backgroundImage = "url('" + pubUrl(p.cover_path) + "')";
+  else cover.appendChild(h("span", {text: initials(p.title)}));
+  var meta = h("div", {class: "meta"},
     h("span", {text: p.mc_version ? "Minecraft " + p.mc_version : "Bedrock"}),
     p.author ? h("span", {text: "por " + p.author}) : null,
     p.file_size ? h("span", {text: fmtSize(p.file_size)}) : null,
     h("span", {text: (p.downloads || 0) + (p.downloads === 1 ? " descarga" : " descargas")}));
-  var body = h("span", {class: "item-body"}, h("strong", {class: "item-title", text: p.title}), meta,
-    p.description ? h("span", {class: "desc", text: p.description}) : null);
-  return h("button", {class: "item", type: "button", onclick: function () { openDetail(p.id); }}, thumb, body);
-}
-function band(type, items) {
-  var t = TYPES[type];
-  return h("section", {class: "band", "data-type": type, "aria-labelledby": "h-" + type},
-    h("div", {class: "band-in"},
-      h("div", {class: "band-head"},
-        h("h2", {id: "h-" + type, text: t.label}),
-        h("p", {class: "layer", text: t.layer + ". " + t.blurb}),
-        h("span", {class: "ybig", "aria-hidden": "true", text: "Y " + t.y})),
-      h("div", {class: "items"}, items.map(item))));
+  var b = h("div", {class: "body"}, h("h3", {text: p.title}), meta, p.description ? h("p", {class: "desc", text: p.description}) : null);
+  return h("button", {class: "card", type: "button", onclick: function () { openDetail(p.id); }}, cover, b);
 }
 function render() {
   renderTabs(); renderVersions(); $("fSort").value = S.sort;
@@ -119,18 +112,15 @@ function render() {
     var e = h("div", {class: "empty"});
     if (!S.loaded) e.appendChild(h("h2", {text: "Cargando…"}));
     else if (!S.posts.length) {
-      e.appendChild(h("h2", {text: "Aún no hay nada en la cantera"}));
-      e.appendChild(h("p", {text: S.admin ? "Pulsa Publicar para subir el primer mundo, pack, shader, addon o holoprint." : "Pronto habrá contenido nuevo."}));
+      e.appendChild(h("h2", {text: "Aún no hay publicaciones"}));
+      e.appendChild(h("p", {text: S.admin ? "Pulsa Publicar para subir el primer addon, pack, shader, mundo o holoprint." : "Pronto habrá contenido nuevo."}));
     } else {
       e.appendChild(h("h2", {text: "Sin resultados"}));
-      e.appendChild(h("p", {text: "Prueba con otra búsqueda, otra capa o otra versión de Minecraft."}));
+      e.appendChild(h("p", {text: "Prueba con otra búsqueda, categoría o versión de Minecraft."}));
     }
     g.appendChild(e); return;
   }
-  ORDER.forEach(function (type) {
-    var items = list.filter(function (p) { return p.type === type; });
-    if (items.length) g.appendChild(band(type, items));
-  });
+  list.forEach(function (p) { g.appendChild(card(p)); });
 }
 function closeSheet() { $("layer").textContent = ""; S.openId = null; }
 document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
