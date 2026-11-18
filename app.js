@@ -99,6 +99,8 @@ function render() {
   renderTabs(); renderVersions(); $("fSort").value = S.sort;
   var list = filtered(), g = $("grid"); g.textContent = "";
   $("count").textContent = list.length + (list.length === 1 ? " resultado" : " resultados");
+  $("stPosts").textContent = S.posts.length;
+  $("stDl").textContent = S.posts.reduce(function (a, p) { return a + (p.downloads || 0); }, 0);
   $("btnNew").hidden = !S.admin;
   $("btnAuth").textContent = S.user ? "Salir" : "Admin";
   if (!list.length) {

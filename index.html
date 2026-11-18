@@ -11,12 +11,20 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand">Cantera Bedrock<small>Addons, packs, shaders, mundos y holoprints</small></div>
+    <div class="brand"><span class="logo" aria-hidden="true"></span><div>Cantera Bedrock<small>Minecraft Bedrock Edition</small></div></div>
     <input id="q" class="search" type="search" placeholder="Buscar por nombre, autor o etiqueta" aria-label="Buscar">
     <button id="btnNew" class="btn primary" type="button" hidden>Publicar</button>
     <button id="btnAuth" class="btn" type="button">Admin</button>
   </header>
-  <nav id="tabs" class="tabs" role="tablist" aria-label="Categorías"></nav>
+  <section class="hero">
+    <h1>Todo para tu mundo Bedrock</h1>
+    <p>Addons, resource packs, shaders, mundos y holoprints. Descarga el archivo y ábrelo con Minecraft, sin cuenta.</p>
+    <div class="stats">
+      <div class="stat"><b id="stPosts">0</b><span>Publicaciones</span></div>
+      <div class="stat"><b id="stDl">0</b><span>Descargas</span></div>
+    </div>
+  </section>
+  <nav id="tabs"class="tabs" role="tablist" aria-label="Categorías"></nav>
   <div class="filters">
     <label>Versión <select id="fVer"><option value="">Todas</option></select></label>
     <label>Orden <select id="fSort">
