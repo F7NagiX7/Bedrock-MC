@@ -11,6 +11,11 @@ var TYPES = {
 var MAX_FILE = 50 * 1024 * 1024;
 var S = {posts: [], tab: "all", q: "", ver: "", sort: "new", admin: false, user: null, openId: null, loaded: false, adminExists: true};
 
+function add(el, c) {
+  if (c == null || c === false) return;
+  if (Array.isArray(c)) { c.forEach(function (x) { add(el, x); }); return; }
+  el.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+}
 function h(tag, props) {
   var el = document.createElement(tag);
   props = props || {};
@@ -24,8 +29,7 @@ function h(tag, props) {
   });
   for (var i = 2; i < arguments.length; i++) {
     var c = arguments[i];
-    if (c == null || c === false) continue;
-    el.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    add(el, arguments[i]);
   }
   return el;
 }
