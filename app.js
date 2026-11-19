@@ -9,6 +9,7 @@ var TYPES = {
   holo:   {label: "Holoprints",     one: "Holoprint",     cv: "--c-holo",   ext: "mcpack"}
 };
 var ORDER = ["addon", "pack", "shader", "world", "holo"];
+var ADMIN_PAGE = !!document.getElementById("btnAuth");
 var MAX_FILE = 50 * 1024 * 1024;
 var S = {posts: [], tab: "all", q: "", ver: "", sort: "new", admin: false, user: null, openId: null, loaded: false, adminExists: true};
 
@@ -106,8 +107,10 @@ function render() {
   $("count").textContent = list.length + (list.length === 1 ? " resultado" : " resultados");
   $("stPosts").textContent = S.posts.length;
   $("stDl").textContent = S.posts.reduce(function (a, p) { return a + (p.downloads || 0); }, 0);
-  $("btnNew").hidden = !S.admin;
-  $("btnAuth").textContent = S.user ? "Salir" : "Admin";
+  if (ADMIN_PAGE) {
+    $("btnNew").hidden = !S.admin;
+    $("btnAuth").textContent = S.user ? "Salir" : "Entrar";
+  }
   if (!list.length) {
     var e = h("div", {class: "empty"});
     if (!S.loaded) e.appendChild(h("h2", {text: "Cargando…"}));
@@ -277,6 +280,7 @@ async function submitForm(edit, v, msg, bar, btn) {
 
 /* ---------- Acceso de administrador ---------- */
 async function refreshAdmin() {
+  if (!ADMIN_PAGE) return;
   var s = await sb.auth.getSession();
   S.user = s.data.session ? s.data.session.user : null;
   S.admin = false;
@@ -340,8 +344,10 @@ async function loadPosts() {
 $("q").addEventListener("input", function (e) { S.q = e.target.value; render(); });
 $("fVer").addEventListener("change", function (e) { S.ver = e.target.value; render(); });
 $("fSort").addEventListener("change", function (e) { S.sort = e.target.value; render(); });
-$("btnNew").addEventListener("click", function () { openForm(); });
-$("btnAuth").addEventListener("click", function () { if (S.admin) logout(); else openAuth(); });
+if (ADMIN_PAGE) {
+  $("btnNew").addEventListener("click", function () { openForm(); });
+  $("btnAuth").addEventListener("click", function () { if (S.admin) logout(); else openAuth(); });
+}
 render();
 loadPosts();
 refreshAdmin();
