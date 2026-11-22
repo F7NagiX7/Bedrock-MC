@@ -126,7 +126,39 @@ function render() {
   list.forEach(function (p) { g.appendChild(card(p)); });
 }
 function closeSheet() { $("layer").textContent = ""; S.openId = null; }
-document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") { if (document.getElementById("lb")) closeLightbox(); else closeSheet(); }
+  else if (document.getElementById("lb")) { if (e.key === "ArrowLeft") lbStep(-1); else if (e.key === "ArrowRight") lbStep(1); }
+});
+var LB = {list: [], i: 0};
+function closeLightbox() { var el = document.getElementById("lb"); if (el) el.remove(); }
+function lbStep(d) {
+  if (LB.list.length < 2) return;
+  LB.i = (LB.i + d + LB.list.length) % LB.list.length; lbShow();
+}
+function lbShow() {
+  var el = document.getElementById("lb"); if (!el) return;
+  el.querySelector("img").src = LB.list[LB.i];
+  el.querySelector(".lb-n").textContent = LB.list.length > 1 ? (LB.i + 1) + " / " + LB.list.length : "";
+}
+function openLightbox(list, i) {
+  closeLightbox(); LB.list = list; LB.i = i;
+  var x0 = null;
+  var multi = list.length > 1;
+  var el = h("div", {id: "lb", class: "lb", role: "dialog", "aria-modal": "true", "aria-label": "Vista previa de imagen",
+      onclick: function (e) { if (e.target === el || e.target.tagName === "IMG") closeLightbox(); }},
+    h("img", {alt: "Vista previa"}),
+    h("button", {class: "lb-x", type: "button", "aria-label": "Cerrar", text: "×", onclick: closeLightbox}),
+    multi ? h("button", {class: "lb-p", type: "button", "aria-label": "Anterior", text: "‹", onclick: function () { lbStep(-1); }}) : null,
+    multi ? h("button", {class: "lb-nx", type: "button", "aria-label": "Siguiente", text: "›", onclick: function () { lbStep(1); }}) : null,
+    h("span", {class: "lb-n"}));
+  el.addEventListener("touchstart", function (e) { x0 = e.touches[0].clientX; }, {passive: true});
+  el.addEventListener("touchend", function (e) {
+    if (x0 == null) return; var dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 50) lbStep(dx < 0 ? 1 : -1);
+  });
+  document.body.appendChild(el); lbShow();
+}
 function openSheet(children) {
   var l = $("layer"); l.textContent = "";
   var sheet = h("div", {class: "sheet", role: "dialog", "aria-modal": "true"});
@@ -156,7 +188,8 @@ function openDetail(id) {
   if (!p) { closeSheet(); return; }
   S.openId = id;
   var t = TYPES[p.type] || TYPES.addon, parts = [];
-  if (p.cover_path) parts.push(h("img", {class: "big", src: pubUrl(p.cover_path), alt: "Portada de " + p.title}));
+  var gal = [p.cover_path].concat(p.screenshots || []).filter(Boolean).map(pubUrl);
+  if (p.cover_path) parts.push(h("img", {class: "big zoom", src: pubUrl(p.cover_path), alt: "Portada de " + p.title, onclick: function () { openLightbox(gal, 0); }}));
   var chip = h("span", {class: "chip", style: "position:static;display:inline-block;margin:12px 0 8px", text: t.one});
   chip.style.setProperty("--tc", typeColor(p.type));
   parts.push(chip, h("h2", {text: p.title}));
@@ -164,7 +197,7 @@ function openDetail(id) {
     kv("Tamaño", fmtSize(p.file_size)), kv("Publicado", fmtDate(p.created_at)), kv("Descargas", String(p.downloads || 0))));
   if (p.description) parts.push(h("p", {class: "pre", text: p.description}));
   if (p.tags && p.tags.length) parts.push(h("div", {class: "meta"}, p.tags.map(function (x) { return h("span", {text: "#" + x}); })));
-  if (p.screenshots && p.screenshots.length) parts.push(h("div", {class: "shots"}, p.screenshots.map(function (s) { return h("img", {src: pubUrl(s), alt: "Captura", loading: "lazy"}); })));
+  if (p.screenshots && p.screenshots.length) parts.push(h("div", {class: "shots"}, p.screenshots.map(function (s, k) { return h("img", {class: "zoom", src: pubUrl(s), alt: "Captura " + (k + 1), loading: "lazy", onclick: function () { openLightbox(gal, (p.cover_path ? 1 : 0) + k); }}); })));
   if (p.file_path) parts.push(h("div", {class: "notice", text: "Cómo instalar: descarga el archivo (." + t.ext + ") y ábrelo con Minecraft Bedrock. Se importa solo."}));
   var acts = [];
   if (p.file_path) {

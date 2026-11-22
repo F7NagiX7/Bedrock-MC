@@ -130,6 +130,17 @@ label.f textarea{min-height:96px;resize:vertical}
 .auth-note{font-size:14px;color:var(--muted);margin:0 0 12px}
 .who{font-size:14px;color:var(--muted)}
 
+.zoom{cursor:zoom-in}
+.lb{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(2,8,12,.92);
+  padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.lb img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;cursor:zoom-out}
+.lb button{position:absolute;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);color:#fff;font-size:28px;line-height:1;cursor:pointer}
+.lb-x{top:max(12px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px))}
+.lb-p{left:max(10px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%)}
+.lb-nx{right:max(10px,env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%)}
+.lb-n{position:absolute;bottom:max(14px,env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);color:#fff;font-size:14px;background:rgba(0,0,0,.45);padding:4px 12px;border-radius:999px}
+.lb-n:empty{display:none}
+
 /* Celulares modestos: menos desenfoque y luces quietas para cuidar batería y fluidez */
 @media (max-width:700px){
   :root{--blur:10px}
